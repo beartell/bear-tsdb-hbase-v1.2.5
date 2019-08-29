@@ -1,0 +1,36 @@
+#####################################
+#   B.E.A.R HBase 1.2.5 Kurulumu    #
+#####################################
+
+# Set the base image for this installation
+FROM centos:7
+
+# File Author / Maintainer
+MAINTAINER miwgates <burak_ozel@outlook.com>
+
+# Pre-reqs
+RUN yum clean all && \
+    yum -y update && \
+    rm -rf /var/cache/*
+RUN yum -y install autoconf automake java-1.8.0-openjdk-devel.x86_64 java-1.8.0-openjdk.x86_64 util-linux-ng.x86_64 wget
+
+# Application Install
+RUN mkdir -p /home && \
+    cd /home/ && \
+    wget http://archive.apache.org/dist/hbase/1.2.5/hbase-1.2.5-bin.tar.gz && \
+    tar xvzf hbase-1.2.5-bin.tar.gz && \
+    rm -rf hbase-1.2.5-bin.tar.gz
+
+# Copy File into Docker
+COPY docker-entrypoint.sh /home/
+RUN chmod +x /home/docker-entrypoint.sh
+
+# Env Variables
+ENV CREATE_SCHEMA 0
+ENV CONFIG_FILE_PATH None
+ENV HBASE_CONFIG_FILE_PATH None
+
+ENTRYPOINT ["/home/docker-entrypoint.sh"]
+
+# Portları Aç
+EXPOSE 16010 45553 38360 44163 2181

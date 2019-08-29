@@ -1,0 +1,41 @@
+#############################
+# B.E.A.R OpenTSDB Kurulumu #
+#############################
+
+# Set the base image for this installation
+FROM centos:7
+
+# File Author / Maintainer
+MAINTAINER miwgates <burak_ozel@outlook.com>
+
+# Pre-reqs
+RUN yum clean all && \
+    yum -y update && \
+    rm -rf /var/cache/*
+RUN yum -y install java-1.8.0-openjdk.x86_64 gnuplot make
+
+# Copy File into Docker
+RUN mkdir -p /home
+    # OpenTSDB
+COPY data/opentsdb-2.3.0.tar.gz /home/
+COPY data/opentsdb.conf /home/
+COPY data/test-data.txt.gz /home/
+RUN cd /home/ && \
+    tar xvzf opentsdb-2.3.0.tar.gz && \
+    rm -rf /home/opentsdb-2.3.0.tar.gz \
+    cp /home/opentsdb.conf /home/opentsdb/opentsdb.conf
+    # Entrypoint
+COPY docker-entrypoint.sh /home/
+RUN chmod +x /home/docker-entrypoint.sh
+
+# Environment variables
+ENV HBASE_HOSTNAME None
+ENV HBASE_IP_ADDRESS None
+ENV CONFIG_FILE_PATH None
+ENV OPENTSDB_CONFIG_FILE_PATH None
+ENV LOAD_TEST_DATA 0
+
+ENTRYPOINT ["/home/docker-entrypoint.sh"]
+
+# Portları Aç
+EXPOSE 4242:4242
